@@ -3,6 +3,7 @@ from . import taskqueue
 
 def push(queue, args):
   queue.push(args.task_txt)
+  queue.print_tasks()
 
 class Parser(object):
   def __init__(self):
