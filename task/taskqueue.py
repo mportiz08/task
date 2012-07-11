@@ -19,12 +19,17 @@ class TaskQueue:
       self._tasks = []
   
   def push(self, task_txt):
-    self._tasks.append(task.Task(task_txt))
+    task_pos = len(self._tasks) + 1
+    self._tasks.append(task.Task(task_txt, task_pos))
     self._sync()
   
   def list(self):
     for task in self._tasks:
       print(task)
+  
+  def clear(self):
+    self._tasks = []
+    self._sync()
   
   def _sync(self):
     self._shelf[self.SHELF_KEY] = self._tasks
