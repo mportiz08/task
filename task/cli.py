@@ -6,7 +6,9 @@ def push_task(queue, args):
   txt = args.task_txt
   if txt == None:
     txt = sys.stdin.read().strip()
-  queue.push(txt)
+  tasks = txt.split('\n')
+  for task_txt in tasks:
+    queue.push(task_txt)
 
 def list_tasks(queue, args):
   queue.list()
