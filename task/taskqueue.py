@@ -11,7 +11,7 @@ class TaskQueue:
   
   def __init__(self):
     if not os.path.exists(self.SHELF_DIR):
-      os.mkdir(self.SHELF_DIR) # TEST ME
+      os.mkdir(self.SHELF_DIR)
     self._shelf = shelve.open(self.SHELF_FILE)
     if self._shelf.has_key(self.SHELF_KEY):
       self._tasks = self._shelf[self.SHELF_KEY]
