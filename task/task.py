@@ -3,4 +3,4 @@ class Task(object):
     self.text, self.position = text, position
   
   def __repr__(self):
-    return '%d. %r' % (self.position, self.text)
+    return '%d. %s' % (self.position, self.text)

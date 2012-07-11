@@ -9,6 +9,8 @@ class TaskQueue:
   SHELF_DIR  = path.join(USER_HOME, '.' + SHELF_KEY)
   SHELF_FILE = path.join(SHELF_DIR, SHELF_KEY)
   
+  UNTAGGED_KEY = 'TODO'
+  
   def __init__(self):
     if not os.path.exists(self.SHELF_DIR):
       os.mkdir(self.SHELF_DIR)
@@ -16,20 +18,33 @@ class TaskQueue:
     if self._shelf.has_key(self.SHELF_KEY):
       self._tasks = self._shelf[self.SHELF_KEY]
     else:
-      self._tasks = []
+      self._tasks = {}
   
-  def push(self, task_txt):
-    task_pos = len(self._tasks) + 1
-    self._tasks.append(task.Task(task_txt, task_pos))
+  def push(self, task_txt, tag=UNTAGGED_KEY):
+    if not self._tag_exists(tag):
+      self._create_tag(tag)
+    self.push_to_tag(task_txt, tag)
+  
+  def push_to_tag(self, task_txt, tag):
+    task_pos = len(self._tasks[tag]) + 1
+    self._tasks[tag].append(task.Task(task_txt, task_pos))
     self._sync()
   
   def list(self):
-    for task in self._tasks:
-      print(task)
+    for tag in self._tasks:
+      print(tag + ":\n")
+      for task in self._tasks[tag]:
+        print(task)
   
   def clear(self):
-    self._tasks = []
+    self._tasks = {}
     self._sync()
+  
+  def _tag_exists(self, tag):
+    return self._tasks.has_key(tag)
+  
+  def _create_tag(self, tag):
+    self._tasks[tag] = []
   
   def _sync(self):
     self._shelf[self.SHELF_KEY] = self._tasks
