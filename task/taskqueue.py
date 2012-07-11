@@ -22,7 +22,7 @@ class TaskQueue:
     self._tasks.append(task.Task(task_txt))
     self._sync()
   
-  def print_tasks(self):
+  def list(self):
     for task in self._tasks:
       print(task)
   

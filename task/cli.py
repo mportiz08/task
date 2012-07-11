@@ -1,9 +1,11 @@
 import argparse
 from . import taskqueue
 
-def push(queue, args):
+def push_task(queue, args):
   queue.push(args.task_txt)
-  queue.print_tasks()
+
+def list_tasks(queue, args):
+  queue.list()
 
 class Parser(object):
   def __init__(self):
@@ -14,7 +16,10 @@ class Parser(object):
     
     self._push_parser = self._sub_parsers.add_parser('push')
     self._push_parser.add_argument('task_txt')
-    self._push_parser.set_defaults(func=push)
+    self._push_parser.set_defaults(func=push_task)
+    
+    self._list_parser = self._sub_parsers.add_parser('list')
+    self._list_parser.set_defaults(func=list_tasks)
   
   def run(self):
     args = self._main_parser.parse_args()
