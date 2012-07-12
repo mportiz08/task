@@ -42,6 +42,7 @@ class TaskQueue:
       raise TaskError('That task does not exist.')
     else:
       del(self._tasks[tag][task_pos - 1])
+      self._update_positions(tag)
       self._sync()
   
   def list(self):
@@ -59,6 +60,10 @@ class TaskQueue:
   
   def _create_tag(self, tag):
     self._tasks[tag] = []
+  
+  def _update_positions(self, tag):
+    for task in enumerate(self._tasks[tag]):
+      task[1].position = task[0] + 1
   
   def _sync(self):
     self._shelf[self.SHELF_KEY] = self._tasks
