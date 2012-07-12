@@ -1,5 +1,6 @@
 import sys
 import argparse
+from . import errors
 from . import taskqueue
 
 def push_task(queue, args):
@@ -10,11 +11,21 @@ def push_task(queue, args):
   for task_txt in tasks:
     queue.push(task_txt)
 
+def remove_task(queue, args):
+  try:
+    queue.remove(args.task_no)
+  except errors.Error as e:
+    print(e)
+    sys.exit(errors.ERROR_STATUS)
+
 def list_tasks(queue, args):
   queue.list()
 
-def clear_tasks(queue, arts):
+def clear_tasks(queue, args):
   queue.clear()
+
+# def mark_task_done(queue, args):
+#   queue.mark_task_done(args.task_no)
 
 class Parser(object):
   def __init__(self):
@@ -28,6 +39,11 @@ class Parser(object):
     self._push_parser.add_argument('task_txt', nargs='?')
     self._push_parser.set_defaults(func=push_task)
     
+    # rm sub-command
+    self._rm_parser = self._sub_parsers.add_parser('rm')
+    self._rm_parser.add_argument('task_no', type=int)
+    self._rm_parser.set_defaults(func=remove_task)
+    
     # list sub-command
     self._list_parser = self._sub_parsers.add_parser('list')
     self._list_parser.set_defaults(func=list_tasks)
@@ -35,6 +51,11 @@ class Parser(object):
     # clear sub-command
     self._list_parser = self._sub_parsers.add_parser('clear')
     self._list_parser.set_defaults(func=clear_tasks)
+    
+    # done sub-command
+    # self._done_parser = self._sub_parsers.add_parser('done')
+    # self._done_parser.add_argument('task_no', type=int)
+    # self._list_parser.set_defaults(func=mark_task_done)
   
   def run(self):
     args = self._main_parser.parse_args()

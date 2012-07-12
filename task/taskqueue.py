@@ -2,6 +2,7 @@ import os
 import shelve
 from os import path
 from . import task
+from . import errors
 
 class TaskQueue:
   USER_HOME  = path.expanduser('~')
@@ -29,6 +30,19 @@ class TaskQueue:
     task_pos = len(self._tasks[tag]) + 1
     self._tasks[tag].append(task.Task(task_txt, task_pos))
     self._sync()
+  
+  def remove(self, task_pos, tag=UNTAGGED_KEY):
+    if not self._tag_exists(tag):
+      raise errors.Error('That tag does not exist.')
+    else:
+      self.remove_from_tag(task_pos, tag)
+  
+  def remove_from_tag(self, task_pos, tag):
+    if task_pos > len(self._tasks[tag]):
+      raise errors.Error('That task does not exist.')
+    else:
+      del(self._tasks[tag][task_pos - 1])
+      self._sync()
   
   def list(self):
     for tag in self._tasks:
