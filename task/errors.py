@@ -1,4 +1,2 @@
-ERROR_STATUS = 1
-
-class Error(Exception):
-  pass
+class TaskError(Exception):
+  ERROR_STATUS = 1

@@ -1,7 +1,7 @@
 import sys
 import argparse
-from . import errors
-from . import taskqueue
+from utils import safely_call
+from taskqueue import TaskQueue
 
 def push_task(queue, args):
   txt = args.task_txt
@@ -12,11 +12,7 @@ def push_task(queue, args):
     queue.push(task_txt)
 
 def remove_task(queue, args):
-  try:
-    queue.remove(args.task_no)
-  except errors.Error as e:
-    print(e)
-    sys.exit(errors.ERROR_STATUS)
+  safely_call(queue.remove, args.task_no)
 
 def list_tasks(queue, args):
   queue.list()
@@ -29,7 +25,7 @@ def clear_tasks(queue, args):
 
 class Parser(object):
   def __init__(self):
-    self._queue = taskqueue.TaskQueue()
+    self._queue = TaskQueue()
     
     self._main_parser = argparse.ArgumentParser()
     self._sub_parsers = self._main_parser.add_subparsers()
