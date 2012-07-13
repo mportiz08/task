@@ -52,31 +52,33 @@ class TaskQueue:
         del(self._tasks[tag])
       self._sync()
   
-  def mark_task_done(self, task_pos, tag=UNTAGGED_KEY):
-    if not self._tag_exists(tag):
+  def mark_task_done(self, args):
+    if not self._tag_exists(args.tag):
       raise TaskError('That tag does not exist.')
     else:
-      self.mark_task_done_from_tag(task_pos, tag)
+      task_pos = args.task_no - 1
+      self.mark_task_done_from_tag(task_pos, args.tag)
   
   def mark_task_done_from_tag(self, task_pos, tag):
-    if task_pos > len(self._tasks[tag]):
+    if task_pos >= len(self._tasks[tag]):
       raise TaskError('That task does not exist.')
     else:
-      task = self._tasks[tag][task_pos - 1]
+      task = self._tasks[tag][task_pos]
       task.mark_done()
       self._sync()
   
-  def mark_task_todo(self, task_pos, tag=UNTAGGED_KEY):
-    if not self._tag_exists(tag):
+  def mark_task_todo(self, args):
+    if not self._tag_exists(args.tag):
       raise TaskError('That tag does not exist.')
     else:
-      self.mark_task_todo_from_tag(task_pos, tag)
+      task_pos = args.task_no - 1
+      self.mark_task_todo_from_tag(task_pos, args.tag)
   
   def mark_task_todo_from_tag(self, task_pos, tag):
-    if task_pos > len(self._tasks[tag]):
+    if task_pos >= len(self._tasks[tag]):
       raise TaskError('That task does not exist.')
     else:
-      task = self._tasks[tag][task_pos - 1]
+      task = self._tasks[tag][task_pos]
       task.mark_todo()
       self._sync()
   

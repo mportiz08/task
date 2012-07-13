@@ -19,13 +19,13 @@ def list_tasks(queue, args):
   queue.list(args)
 
 def clear_tasks(queue, args):
-  queue.clear(args)
+  safely_call(queue.clear, args)
 
 def mark_task_done(queue, args):
-  safely_call(queue.mark_task_done, args.task_no)
+  safely_call(queue.mark_task_done, args)
 
 def mark_task_todo(queue, args):
-  safely_call(queue.mark_task_todo, args.task_no)
+  safely_call(queue.mark_task_todo, args)
 
 class Parser(object):
   UNTAGGED = 'TODO'
@@ -61,11 +61,13 @@ class Parser(object):
     # done sub-command
     self._done_parser = self._sub_parsers.add_parser('done')
     self._done_parser.add_argument('task_no', type=int)
+    self._done_parser.add_argument('-t', '--tag', default=self.UNTAGGED)
     self._done_parser.set_defaults(func=mark_task_done)
     
     # todo sub-command
     self._todo_parser = self._sub_parsers.add_parser('todo')
     self._todo_parser.add_argument('task_no', type=int)
+    self._todo_parser.add_argument('-t', '--tag', default=self.UNTAGGED)
     self._todo_parser.set_defaults(func=mark_task_todo)
   
   def run(self):
