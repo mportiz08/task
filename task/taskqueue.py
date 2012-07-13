@@ -80,14 +80,22 @@ class TaskQueue:
       task.mark_todo()
       self._sync()
   
-  def list(self):
-    num_tags = len(self._tasks)
-    for idx, tag in enumerate(self._tasks):
-      print(tag + ":\n")
-      for task in self._tasks[tag]:
-        print(task)
-      if idx < (num_tags - 1):
-        print('')
+  def list(self, args):
+    tasks = self._tasks
+    if args.tag:
+      tasks = {args.tag: self._tasks[args.tag]}
+    num_tags = len(tasks)
+    for idx, tag in enumerate(tasks):
+      newline_needed = idx < (num_tags - 1)
+      self.list_tasks_from_tag(tag, newline_needed)
+  
+  def list_tasks_from_tag(self, tag, newline=False):
+    print(tag + ":\n")
+    for task in self._tasks[tag]:
+      print(task)
+    if newline:
+      print('')
+      
   
   def clear(self):
     self._tasks = {}

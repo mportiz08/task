@@ -16,7 +16,7 @@ def remove_task(queue, args):
   safely_call(queue.remove, args)
 
 def list_tasks(queue, args):
-  queue.list()
+  queue.list(args)
 
 def clear_tasks(queue, args):
   queue.clear()
@@ -50,6 +50,7 @@ class Parser(object):
     
     # list sub-command
     self._list_parser = self._sub_parsers.add_parser('list')
+    self._list_parser.add_argument('-t', '--tag')
     self._list_parser.set_defaults(func=list_tasks)
     
     # clear sub-command
