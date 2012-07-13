@@ -9,7 +9,8 @@ def push_task(queue, args):
     txt = sys.stdin.read().strip()
   tasks = txt.split('\n')
   for task_txt in tasks:
-    queue.push(task_txt)
+    args.task_txt = task_txt
+    queue.push(args)
 
 def remove_task(queue, args):
   safely_call(queue.remove, args.task_no)
@@ -27,6 +28,8 @@ def mark_task_todo(queue, args):
   safely_call(queue.mark_task_todo, args.task_no)
 
 class Parser(object):
+  UNTAGGED = 'TODO'
+  
   def __init__(self):
     self._queue = TaskQueue()
     
@@ -36,6 +39,7 @@ class Parser(object):
     # push sub-command
     self._push_parser = self._sub_parsers.add_parser('push')
     self._push_parser.add_argument('task_txt', nargs='?')
+    self._push_parser.add_argument('-t', '--tag', default=self.UNTAGGED)
     self._push_parser.set_defaults(func=push_task)
     
     # rm sub-command

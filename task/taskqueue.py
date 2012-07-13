@@ -21,7 +21,9 @@ class TaskQueue:
     else:
       self._tasks = {}
   
-  def push(self, task_txt, tag=UNTAGGED_KEY):
+  def push(self, args):
+    task_txt = args.task_txt
+    tag = args.tag
     if not self._tag_exists(tag):
       self._create_tag(tag)
     self.push_to_tag(task_txt, tag)
@@ -78,6 +80,7 @@ class TaskQueue:
       print(tag + ":\n")
       for task in self._tasks[tag]:
         print(task)
+      print("")
   
   def clear(self):
     self._tasks = {}
