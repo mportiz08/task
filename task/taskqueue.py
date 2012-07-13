@@ -1,6 +1,7 @@
 import os
 import shelve
 from os import path
+from collections import OrderedDict
 from task import Task
 from errors import TaskError
 
@@ -17,9 +18,9 @@ class TaskQueue:
       os.mkdir(self.SHELF_DIR)
     self._shelf = shelve.open(self.SHELF_FILE)
     if self._shelf.has_key(self.SHELF_KEY):
-      self._tasks = self._shelf[self.SHELF_KEY]
+      self._tasks = OrderedDict(self._shelf[self.SHELF_KEY])
     else:
-      self._tasks = {}
+      self._tasks = OrderedDict({})
   
   def push(self, args):
     task_txt = args.task_txt
@@ -33,18 +34,22 @@ class TaskQueue:
     self._tasks[tag].append(Task(task_txt, task_pos))
     self._sync()
   
-  def remove(self, task_pos, tag=UNTAGGED_KEY):
+  def remove(self, args):
+    task_pos = args.task_no - 1
+    tag = args.tag
     if not self._tag_exists(tag):
       raise TaskError('That tag does not exist.')
     else:
       self.remove_from_tag(task_pos, tag)
   
   def remove_from_tag(self, task_pos, tag):
-    if task_pos > len(self._tasks[tag]):
+    if task_pos >= len(self._tasks[tag]):
       raise TaskError('That task does not exist.')
     else:
-      del(self._tasks[tag][task_pos - 1])
+      del(self._tasks[tag][task_pos])
       self._update_positions(tag)
+      if len(self._tasks[tag]) == 0:
+        del(self._tasks[tag])
       self._sync()
   
   def mark_task_done(self, task_pos, tag=UNTAGGED_KEY):
@@ -76,11 +81,13 @@ class TaskQueue:
       self._sync()
   
   def list(self):
-    for tag in self._tasks:
+    num_tags = len(self._tasks)
+    for idx, tag in enumerate(self._tasks):
       print(tag + ":\n")
       for task in self._tasks[tag]:
         print(task)
-      print("")
+      if idx < (num_tags - 1):
+        print('')
   
   def clear(self):
     self._tasks = {}

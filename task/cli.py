@@ -13,7 +13,7 @@ def push_task(queue, args):
     queue.push(args)
 
 def remove_task(queue, args):
-  safely_call(queue.remove, args.task_no)
+  safely_call(queue.remove, args)
 
 def list_tasks(queue, args):
   queue.list()
@@ -45,6 +45,7 @@ class Parser(object):
     # rm sub-command
     self._rm_parser = self._sub_parsers.add_parser('rm')
     self._rm_parser.add_argument('task_no', type=int)
+    self._rm_parser.add_argument('-t', '--tag', default=self.UNTAGGED)
     self._rm_parser.set_defaults(func=remove_task)
     
     # list sub-command
