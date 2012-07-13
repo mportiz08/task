@@ -1,6 +1,7 @@
 import os
 import shelve
 from os import path
+from collections import OrderedDict
 from task import Task
 from errors import TaskError
 
@@ -17,11 +18,13 @@ class TaskQueue:
       os.mkdir(self.SHELF_DIR)
     self._shelf = shelve.open(self.SHELF_FILE)
     if self._shelf.has_key(self.SHELF_KEY):
-      self._tasks = self._shelf[self.SHELF_KEY]
+      self._tasks = OrderedDict(self._shelf[self.SHELF_KEY])
     else:
-      self._tasks = {}
+      self._tasks = OrderedDict({})
   
-  def push(self, task_txt, tag=UNTAGGED_KEY):
+  def push(self, args):
+    task_txt = args.task_txt
+    tag = args.tag
     if not self._tag_exists(tag):
       self._create_tag(tag)
     self.push_to_tag(task_txt, tag)
@@ -31,57 +34,86 @@ class TaskQueue:
     self._tasks[tag].append(Task(task_txt, task_pos))
     self._sync()
   
-  def remove(self, task_pos, tag=UNTAGGED_KEY):
+  def remove(self, args):
+    task_pos = args.task_no - 1
+    tag = args.tag
     if not self._tag_exists(tag):
       raise TaskError('That tag does not exist.')
     else:
       self.remove_from_tag(task_pos, tag)
   
   def remove_from_tag(self, task_pos, tag):
-    if task_pos > len(self._tasks[tag]):
+    if task_pos >= len(self._tasks[tag]):
       raise TaskError('That task does not exist.')
     else:
-      del(self._tasks[tag][task_pos - 1])
+      del(self._tasks[tag][task_pos])
       self._update_positions(tag)
+      if len(self._tasks[tag]) == 0:
+        del(self._tasks[tag])
       self._sync()
   
-  def mark_task_done(self, task_pos, tag=UNTAGGED_KEY):
-    if not self._tag_exists(tag):
+  def mark_task_done(self, args):
+    if not self._tag_exists(args.tag):
       raise TaskError('That tag does not exist.')
     else:
-      self.mark_task_done_from_tag(task_pos, tag)
+      task_pos = args.task_no - 1
+      self.mark_task_done_from_tag(task_pos, args.tag)
   
   def mark_task_done_from_tag(self, task_pos, tag):
-    if task_pos > len(self._tasks[tag]):
+    if task_pos >= len(self._tasks[tag]):
       raise TaskError('That task does not exist.')
     else:
-      task = self._tasks[tag][task_pos - 1]
+      task = self._tasks[tag][task_pos]
       task.mark_done()
       self._sync()
   
-  def mark_task_todo(self, task_pos, tag=UNTAGGED_KEY):
-    if not self._tag_exists(tag):
+  def mark_task_todo(self, args):
+    if not self._tag_exists(args.tag):
       raise TaskError('That tag does not exist.')
     else:
-      self.mark_task_todo_from_tag(task_pos, tag)
+      task_pos = args.task_no - 1
+      self.mark_task_todo_from_tag(task_pos, args.tag)
   
   def mark_task_todo_from_tag(self, task_pos, tag):
-    if task_pos > len(self._tasks[tag]):
+    if task_pos >= len(self._tasks[tag]):
       raise TaskError('That task does not exist.')
     else:
-      task = self._tasks[tag][task_pos - 1]
+      task = self._tasks[tag][task_pos]
       task.mark_todo()
       self._sync()
   
-  def list(self):
-    for tag in self._tasks:
-      print(tag + ":\n")
-      for task in self._tasks[tag]:
-        print(task)
+  def list(self, args):
+    tasks = self._tasks
+    if args.tag:
+      tasks = {args.tag: self._tasks[args.tag]}
+    num_tags = len(tasks)
+    for idx, tag in enumerate(tasks):
+      newline_needed = idx < (num_tags - 1)
+      self.list_tasks_from_tag(tag, newline_needed)
   
-  def clear(self):
-    self._tasks = {}
-    self._sync()
+  def list_tasks_from_tag(self, tag, newline=False):
+    print(tag + ":\n")
+    for task in self._tasks[tag]:
+      print(task)
+    if newline:
+      print('')
+      
+  
+  def clear(self, args):
+    if args.tag:
+      self.clear_tag(args.tag)
+    else:
+      self._tasks = {}
+      self._sync()
+  
+  def clear_tag(self, tag):
+    if not self._tasks.has_key(tag):
+      raise TaskError('That tag does not exist.')
+    else:
+      self._tasks[tag] = []
+      if len(self._tasks[tag]) == 0:
+        del(self._tasks[tag])
+      self._sync()
   
   def _tag_exists(self, tag):
     return self._tasks.has_key(tag)
