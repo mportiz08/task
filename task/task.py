@@ -1,3 +1,5 @@
+from utils import color
+
 class Task(object):
   STATUS_DONE = 'DONE'
   STATUS_TODO = 'TODO'
@@ -17,7 +19,7 @@ class Task(object):
   
   def _status_str(self):
     return {
-      self.STATUS_DONE: '✓',
-      self.STATUS_TODO: '✗'
+      self.STATUS_DONE: color('✓', 'green'),
+      self.STATUS_TODO: color('✗', 'red')
     }[self.status]
       
