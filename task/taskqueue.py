@@ -97,9 +97,21 @@ class TaskQueue:
       print('')
       
   
-  def clear(self):
-    self._tasks = {}
-    self._sync()
+  def clear(self, args):
+    if args.tag:
+      self.clear_tag(args.tag)
+    else:
+      self._tasks = {}
+      self._sync()
+  
+  def clear_tag(self, tag):
+    if not self._tasks.has_key(tag):
+      raise TaskError('That tag does not exist.')
+    else:
+      self._tasks[tag] = []
+      if len(self._tasks[tag]) == 0:
+        del(self._tasks[tag])
+      self._sync()
   
   def _tag_exists(self, tag):
     return self._tasks.has_key(tag)

@@ -19,7 +19,7 @@ def list_tasks(queue, args):
   queue.list(args)
 
 def clear_tasks(queue, args):
-  queue.clear()
+  queue.clear(args)
 
 def mark_task_done(queue, args):
   safely_call(queue.mark_task_done, args.task_no)
@@ -54,8 +54,9 @@ class Parser(object):
     self._list_parser.set_defaults(func=list_tasks)
     
     # clear sub-command
-    self._list_parser = self._sub_parsers.add_parser('clear')
-    self._list_parser.set_defaults(func=clear_tasks)
+    self._clear_parser = self._sub_parsers.add_parser('clear')
+    self._clear_parser.add_argument('-t', '--tag')
+    self._clear_parser.set_defaults(func=clear_tasks)
     
     # done sub-command
     self._done_parser = self._sub_parsers.add_parser('done')
@@ -70,4 +71,3 @@ class Parser(object):
   def run(self):
     args = self._main_parser.parse_args()
     args.func(self._queue, args)
-    
